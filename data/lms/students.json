@@ -1,0 +1,16 @@
+[
+    {
+        "id": "1",
+        "name": "Алексей С.",
+        "course": "Python Developer",
+        "level": "Начинающий",
+        "progress": 35
+    },
+    {
+        "id": "2",
+        "name": "Елена В.",
+        "course": "FastAPI Backend",
+        "level": "Продвинутый",
+        "progress": 85
+    }
+]

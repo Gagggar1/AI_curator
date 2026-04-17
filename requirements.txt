@@ -1,0 +1,11 @@
+streamlit==1.32.2
+langchain==0.1.13
+langchain-openai==0.1.1
+chromadb==0.4.24
+pandas==2.2.1
+python-dotenv==1.0.1
+tiktoken==0.6.0
+pydantic==2.6.4
+pypdf==4.1.0
+docx2txt==0.8
+werkzeug>=3.0.0

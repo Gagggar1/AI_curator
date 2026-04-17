@@ -1,0 +1,114 @@
+КУРС: БАЗЫ ДАННЫХ И SQL (ПОЛНОЦЕННОЕ РУКОВОДСТВО)
+
+================================================================================
+УРОК 1: ВВЕДЕНИЕ В РЕЛЯЦИОННЫЕ БАЗЫ ДАННЫХ И БАЗОВЫЙ SQL
+================================================================================
+Реляционные базы данных (РБД) хранят информацию в виде связанных таблиц, состоящих из строк (записей) и столбцов (атрибутов). Самый популярный язык для работы с РБД — SQL (Structured Query Language).
+
+1.1. Базовая выборка данных (SELECT)
+Команда SELECT используется для чтения данных из таблиц.
+- Выбрать все колонки: 
+  SELECT * FROM employees;
+- Выбрать конкретные колонки: 
+  SELECT first_name, last_name, salary FROM employees;
+
+1.2. Фильтрация данных (WHERE)
+Чтобы получить не все записи, а только те, которые соответствуют условию, используется WHERE.
+- Операторы сравнения: =, <, >, <=, >=, != (или <>)
+  SELECT * FROM employees WHERE salary > 50000;
+- Логические операторы (AND, OR, NOT):
+  SELECT * FROM employees WHERE department = 'IT' AND salary > 50000;
+- Оператор IN (поиск по списку значений):
+  SELECT * FROM employees WHERE department IN ('IT', 'HR', 'Sales');
+- Оператор LIKE (поиск по шаблону, % заменяет любое количество символов):
+  SELECT * FROM employees WHERE last_name LIKE 'Smi%';
+
+1.3. Сортировка и ограничение (ORDER BY, LIMIT)
+- Сортировка по убыванию (DESC) или возрастанию (ASC, по умолчанию):
+  SELECT * FROM employees ORDER BY salary DESC;
+- Ограничение количества выводимых строк (полезно для пагинации):
+  SELECT * FROM employees ORDER BY salary DESC LIMIT 10;
+
+
+================================================================================
+УРОК 2: ПРОДВИНУТАЯ ВЫБОРКА ДАННЫХ (JOIN И АГРЕГАЦИЯ)
+================================================================================
+В реальных проектах данные разнесены по разным таблицам (нормализация). Чтобы собрать их вместе, используются объединения (JOIN).
+
+2.1. Объединение таблиц (JOIN)
+Представим две таблицы: `users` (id, name, role_id) и `roles` (id, role_name).
+- INNER JOIN (внутреннее соединение) — возвращает только те строки, для которых есть совпадения в обеих таблицах:
+  SELECT users.name, roles.role_name 
+  FROM users 
+  INNER JOIN roles ON users.role_id = roles.id;
+- LEFT JOIN (левое соединение) — возвращает ВСЕ строки из левой таблицы (users), даже если в правой (roles) нет совпадений (вместо них будет NULL):
+  SELECT users.name, roles.role_name 
+  FROM users 
+  LEFT JOIN roles ON users.role_id = roles.id;
+
+2.2. Агрегатные функции
+Позволяют вычислять сводные значения по множеству строк.
+- COUNT() — количество строк.
+- SUM() — сумма значений.
+- AVG() — среднее значение.
+- MIN() / MAX() — минимальное и максимальное значение.
+Пример: SELECT COUNT(*), AVG(salary) FROM employees;
+
+2.3. Группировка данных (GROUP BY)
+Используется вместе с агрегатными функциями для группировки результата по одному или нескольким столбцам.
+Пример (средняя зарплата по каждому отделу):
+  SELECT department, AVG(salary) 
+  FROM employees 
+  GROUP BY department;
+
+2.4. Фильтрация групп (HAVING)
+WHERE фильтрует строки ДО группировки, а HAVING — ПОСЛЕ.
+Пример (отделы, где средняя зарплата больше 60000):
+  SELECT department, AVG(salary) 
+  FROM employees 
+  GROUP BY department 
+  HAVING AVG(salary) > 60000;
+
+
+================================================================================
+УРОК 3: МОДИФИКАЦИЯ ДАННЫХ И ПРОЕКТИРОВАНИЕ СХЕМЫ (DDL/DML)
+================================================================================
+SQL делится на подмножества. DML (Data Manipulation Language) работает с данными, а DDL (Data Definition Language) — со структурой таблиц.
+
+3.1. Создание таблиц (CREATE TABLE)
+При создании таблицы нужно указать типы данных (INT, VARCHAR, DATE, BOOLEAN) и ограничения (CONSTRAINTS).
+- PRIMARY KEY — уникальный идентификатор строки.
+- FOREIGN KEY — ссылка на первичный ключ другой таблицы.
+- NOT NULL — поле не может быть пустым.
+- UNIQUE — все значения в столбце должны быть уникальными.
+
+Пример:
+CREATE TABLE orders (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    total_amount DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+3.2. Вставка данных (INSERT)
+INSERT INTO users (name, email, age) 
+VALUES ('Иван Иванов', 'ivan@example.com', 28);
+
+3.3. Обновление данных (UPDATE)
+ВНИМАНИЕ: Всегда используйте WHERE при UPDATE, иначе обновятся ВСЕ строки в таблице!
+UPDATE users 
+SET age = 29, email = 'new_ivan@example.com' 
+WHERE id = 1;
+
+3.4. Удаление данных (DELETE)
+ВНИМАНИЕ: Аналогично UPDATE, всегда используйте WHERE. В современных системах часто используют "мягкое удаление" (soft delete), просто меняя статус (UPDATE users SET is_deleted = true WHERE id = 1).
+DELETE FROM users WHERE id = 1;
+
+3.5. Транзакции (ACID)
+Транзакция — это набор операций, которые выполняются как единое целое. Либо выполняются все, либо ни одной.
+BEGIN; -- начало транзакции
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT; -- успешное завершение и сохранение
+-- Если произошла ошибка, используем ROLLBACK; для отмены изменений.
